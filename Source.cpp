@@ -117,21 +117,21 @@ int main() {
 
 	//for (int i = 0; i < 10; i++, it1++) { cout << img1.at<Vec3b>(0, i) << " "<< *it1 << " " << Vec3b2int(*it1)<< endl;	}
 
-
+	Point start, end;
 	//Create Struct ------- Saltos de 192x108 (Max)
 	int i = -1, absPos = 0;
 	int row = 0, rowAnterior = -1;
 	while (it1 != it1_end && (absPos <= 8294400)) {
 
-		Pixel* pix1 = l1->insert(absPos, *it1);
-		Pixel* pix2 = l2->insert(absPos, *it2);
+		//Pixel* pix1 = l1->insert(absPos, *it1);
+		//Pixel* pix2 = l2->insert(absPos, *it2);
 
 		i++; //it1, it2 y posAbs depende de si hay salto o no
 
-		if (i != 0) {
-			l1->getPix(absPos - 1)->addNextPixel(pix1);
-			l2->getPix(absPos - 1)->addNextPixel(pix2);
-		}
+		//if (i != 0) {
+		//	l1->getPix(absPos - 1)->addNextPixel(pix1);
+		//	l2->getPix(absPos - 1)->addNextPixel(pix2);
+		//}
 
 		//if (j == 10000) break; //43000
 
@@ -141,24 +141,36 @@ int main() {
 		//	cout << endl << endl << "Row: " << row << endl;
 		//} cout << "Col: " << absPos % numCols << " ";
 
+		if (i == 0) {
+			start.y = absPos / numCols;
+			start.x = absPos % numCols;
+		}
+
 		if (i < 9) {// no salto
 			it1++;
 			it2++;
 			absPos++;
-
-
 		} else {//salto
+			end.y = absPos / numCols;
+			end.x = absPos % numCols;
+			MyLine(img1, start, end);
+
 			i = -1;
-			absPos += 192 * 10;
-			it1 += 192 * 10;
-			it2 += 192 * 10;
-
-
+			absPos += 192 * 5;
+			it1 += 192 * 5;
+			it2 += 192 * 5;
 		}
 	}
 
-	cout << "Cantidad de pixeles agregados en IMG1: " << l1->count << endl;
-	cout << "Cantidad de pixeles agregados en IMG2: " << l2->count << endl;
+	//cout << "Cantidad de pixeles agregados en IMG1: " << l1->count << endl;
+	//cout << "Cantidad de pixeles agregados en IMG2: " << l2->count << endl;
+
+	Mat reS; // , peque = imread("Images/peque.jpg"), reS2;
+	resize(img1, reS, Size(), 0.5,0.5);
+	//resize(peque, reS2, Size(), 0.5, 0.5);
+	imshow(" ",reS); //imshow(" ", reS2);
+	waitKey(0);
+
 
 	//l1->print(); //*/
 
