@@ -5,13 +5,12 @@
 
 #include <vector>
 #include <algorithm>
-#include <sstream>
 
 using namespace cv;
 using namespace std;
 
 //Struct
-#define numCols 3840 // CHANGE IF RESIZE
+#define numCols 1920 // CHANGE IF RESIZE
 
 int Vec3b2int(Vec3b pix) {
 	int res = 0;
@@ -22,7 +21,6 @@ int Vec3b2int(Vec3b pix) {
 }
 
 typedef struct Pixel Pixel;
-typedef struct Lista Lista;
 
 struct Pixel {
 	int absPos;			//id
@@ -30,14 +28,13 @@ struct Pixel {
 	int color;			//Vec3b -> int - 8bits 8bits 8bits
 	bool deleted;		//para algoritmos luego
 	Pixel* nextPixel;	//Siguiente Pixel en la imagen original
-	Pixel* next;		//Siguiente Pixel en la Lista
 
 	Pixel(int absPos, Vec3b pix) {
 		this->absPos = absPos;
 		row = absPos / numCols; col = absPos % numCols;
 		color = Vec3b2int(pix);
 		deleted = false;
-		nextPixel = next = nullptr;
+		nextPixel = nullptr;
 	}
 
 	void addNextPixel(Pixel* next) {
@@ -52,127 +49,122 @@ struct Pixel {
 		if (nextPixel != nullptr)
 			cout << "Next pixel -> " << nextPixel->absPos << endl << endl;
 		else 
-			cout << endl << endl;
-	}
-};
-
-struct List {
-	Pixel* first, * last;
-	int count = 0;
-
-	List() {
-		first = last = nullptr;
-	}
-
-	Pixel* insert(int absPos, Vec3b pix) {
-		Pixel* pixN = new Pixel(absPos, pix);
-		count++;
-		if (!first) {
-			first = last = pixN;
-		}
-		else {
-			last->next = pixN;
-			last = pixN;
-		} return pixN;
-	}
-
-	Pixel* getPix(int absPos) {
-		Pixel* tmp = first;
-		while (tmp != nullptr && tmp->absPos != absPos) {
-			tmp = tmp->next;
-		} return tmp;
-	}
-
-	void print() {
-		Pixel* tmp = first;
-		while (tmp != nullptr) {
-			tmp->print();
-			tmp = tmp->next;
-		}
+			cout << "/ / / Salto / / /" << endl << endl;
 	}
 };
 
 //at<Vec3b>(row,col)
 
 void MyLine(Mat img, Point start, Point end){
-	int thickness = 2;
+	int thickness = 1;
 	int lineType = LINE_8;
 	line(img, start, end, Scalar(0, 0, 255), thickness, lineType);
+}
+
+void printVec(vector<Pixel *> v, int n) {
+	for (auto pix: v) {
+		pix->print();
+
+		if ((n--) <= 1)
+			break;
+	}
 }
 
 int main() {
 	cout << "Hi" << endl;
 
 	//Images
-	Mat img1 = imread("Images/a.jpg");
-	Mat img2 = imread("Images/mod.jpg");
+	Mat img1 = imread("Images/a.jpg"), re1;
+	Mat img2 = imread("Images/mod.jpg"), re2;
+	resize(img1, re1, Size(), 0.5, 0.5);
+	resize(img2, re2, Size(), 0.5, 0.5);
 
 	//Structures
-	List* l1 = new List();
-	List* l2 = new List();
+	vector<Pixel *> v1, v2;
 
 	//Iterators for moving around the Images
-	MatIterator_<Vec3b> it1 = img1.begin<Vec3b>(), it1_end = img1.end<Vec3b>();
-	MatIterator_<Vec3b> it2 = img2.begin<Vec3b>(), it2_end = img2.end<Vec3b>();
+	MatIterator_<Vec3b> it1 = re1.begin<Vec3b>(), it1_end = re1.end<Vec3b>();
+	MatIterator_<Vec3b> it2 = re2.begin<Vec3b>(), it2_end = re2.end<Vec3b>();
 
 	//for (int i = 0; i < 10; i++, it1++) { cout << img1.at<Vec3b>(0, i) << " "<< *it1 << " " << Vec3b2int(*it1)<< endl;	}
 
+	//Create Struct -------
+	int i = -1, absPos = 0, row, col, jump;
+	unsigned int j = 0;
+
 	Point start, end;
-	//Create Struct ------- Saltos de 192x108 (Max)
-	int i = -1, absPos = 0;
-	int row = 0, rowAnterior = -1;
-	while (it1 != it1_end && (absPos <= 8294400)) {
+	Pixel* pix1, * pix2;
 
-		//Pixel* pix1 = l1->insert(absPos, *it1);
-		//Pixel* pix2 = l2->insert(absPos, *it2);
+	while (it1 != it1_end && (absPos <= 2073600)) {
 
-		i++; //it1, it2 y posAbs depende de si hay salto o no
+		i++;
 
-		//if (i != 0) {
-		//	l1->getPix(absPos - 1)->addNextPixel(pix1);
-		//	l2->getPix(absPos - 1)->addNextPixel(pix2);
-		//}
+		pix1 = new Pixel(absPos, *it1);
+		pix2 = new Pixel(absPos, *it2);
 
-		//if (j == 10000) break; //43000
+		v1.push_back(pix1);
+		v2.push_back(pix2);
 
-		//rowAnterior = row;
-		//row = absPos / numCols;
-		//if (row != rowAnterior) {
-		//	cout << endl << endl << "Row: " << row << endl;
-		//} cout << "Col: " << absPos % numCols << " ";
+		/* 
+		if (!v1.empty()) {
+			if (v1[j - 1]->row == pix1->row && v1[j - 1]->col + 1 == pix1->col)
+				v1[j - 1]->addNextPixel(pix1);
 
-		if (i == 0) {
-			start.y = absPos / numCols;
-			start.x = absPos % numCols;
+			if (v2[j - 1]->row == pix2->row && v2[j - 1]->col + 1 == pix2->col)
+				v2[j - 1]->addNextPixel(pix2);
+		}*/
+
+		//ERROR, SI LA FILA ES IMPAR NO VA A AÑADIR LOS PUNTEROS QUE COINCIDEN DENTRO DE NEXT PIXEL
+		
+		if (i != 0) { //add next pixel to each pixel
+			v1[j - 1]->addNextPixel(pix1);
+			v2[j - 1]->addNextPixel(pix2);
 		}
 
-		if (i < 9) {// no salto
-			it1++;
-			it2++;
-			absPos++;
-		} else {//salto
-			end.y = absPos / numCols;
-			end.x = absPos % numCols;
-			MyLine(img1, start, end);
+		row = absPos / numCols;
+		col = absPos % numCols;
 
-			i = -1;
-			absPos += 192 * 5;
-			it1 += 192 * 5;
-			it2 += 192 * 5;
+		if (row % 2 != 0) { // saltarme rows impares
+			i = -1; 
+			//jump = numCols;   //						(numCols[*5])
+			jump = 11;			//7	(740341)			//11 (686520)
+			absPos += jump;  
+			it1 += jump; it2 += jump;
 		}
+		else {
+			if (i == 0) {		// draw //
+				start.y = row;	// draw //
+				start.x = col;	// draw //
+			}					// draw //
+
+			if (i < 7) { //5		// no salto			(5)		(7)
+				it1++;
+				it2++;
+				absPos++;
+			} else {				//salto
+				end.y = row;				// draw //
+				end.x = col;				// draw //
+				MyLine(re1, start, end);	// draw //
+				//MyLine(re2, start, end);	// draw //
+
+				jump = 7; //10							(10)	(7)
+
+				i = -1;
+				absPos += jump;
+				it1 += jump;
+				it2 += jump;
+			}
+		}
+
+		j++;
 	}
 
-	//cout << "Cantidad de pixeles agregados en IMG1: " << l1->count << endl;
-	//cout << "Cantidad de pixeles agregados en IMG2: " << l2->count << endl;
+	cout << "Cantidad de elementos en cada vector: " << v1.size() << endl << endl;
 
-	Mat reS; // , peque = imread("Images/peque.jpg"), reS2;
-	resize(img1, reS, Size(), 0.5,0.5);
-	//resize(peque, reS2, Size(), 0.5, 0.5);
-	imshow(" ",reS); //imshow(" ", reS2);
-	waitKey(0);
+	cv::imshow(" ", re1);
+	cv::waitKey(0);
 
-
-	//l1->print(); //*/
+	//printVec(v1, 10000/3);
 
 	//Sort both images so I can use the struct more efficiently (ALGORITHMS)
 
