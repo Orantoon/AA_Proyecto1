@@ -70,7 +70,13 @@ void printVec(vector<Pixel *> v, int n) {
 	}
 }
 
-int main() {
+bool smallNum(Pixel* a, Pixel* b) {
+	return (a->color < b->color);
+}
+
+vector<Pixel*> v1, v2;
+
+void createStruct() {
 	cout << "Hi" << endl;
 
 	//Images
@@ -80,7 +86,7 @@ int main() {
 	resize(img2, re2, Size(), 0.5, 0.5);
 
 	//Structures
-	vector<Pixel *> v1, v2;
+	//vector<Pixel *> v1, v2;
 
 	//Iterators for moving around the Images
 	MatIterator_<Vec3b> it1 = re1.begin<Vec3b>(), it1_end = re1.end<Vec3b>();
@@ -105,21 +111,23 @@ int main() {
 		v1.push_back(pix1);
 		v2.push_back(pix2);
 
-		/* 
-		if (!v1.empty()) {
+
+		if (v1.size() > 2) {
 			if (v1[j - 1]->row == pix1->row && v1[j - 1]->col + 1 == pix1->col)
 				v1[j - 1]->addNextPixel(pix1);
+			//else
+				//cout << v1[j - 1]->absPos << " & " << absPos << endl;
 
 			if (v2[j - 1]->row == pix2->row && v2[j - 1]->col + 1 == pix2->col)
 				v2[j - 1]->addNextPixel(pix2);
-		}*/
+		} 
 
 		//ERROR, SI LA FILA ES IMPAR NO VA A AÑADIR LOS PUNTEROS QUE COINCIDEN DENTRO DE NEXT PIXEL
 		
-		if (i != 0) { //add next pixel to each pixel
-			v1[j - 1]->addNextPixel(pix1);
-			v2[j - 1]->addNextPixel(pix2);
-		}
+		//if (i != 0) { //add next pixel to each pixel
+			//v1[j - 1]->addNextPixel(pix1);
+			//v2[j - 1]->addNextPixel(pix2);
+		//}
 
 		row = absPos / numCols;
 		col = absPos % numCols;
@@ -127,7 +135,7 @@ int main() {
 		if (row % 2 != 0) { // saltarme rows impares
 			i = -1; 
 			//jump = numCols;   //						(numCols[*5])
-			jump = 11;			//7	(740341)			//11 (686520)
+			jump = 11;			//7	(740341)			//11 (686520) //
 			absPos += jump;  
 			it1 += jump; it2 += jump;
 		}
@@ -161,12 +169,28 @@ int main() {
 
 	cout << "Cantidad de elementos en cada vector: " << v1.size() << endl << endl;
 
-	cv::imshow(" ", re1);
-	cv::waitKey(0);
+	//cv::imshow(" ", re1);
+	//cv::waitKey(0);
 
-	//printVec(v1, 10000/3);
+	//printVec(v1, 10000);
 
-	//Sort both images so I can use the struct more efficiently (ALGORITHMS)
-
+	cout << "End!";
 };
 
+void backtracking() {
+	//Sort both images so I can use the struct more efficiently (ALGORITHMS)
+	sort(v1.begin(), v1.end(), smallNum); sort(v2.begin(), v2.end(), smallNum);
+
+	//Recorrer ambos vectores
+
+}
+
+
+
+
+
+int main() {
+	createStruct();
+	backtracking();
+	return 0;
+}
