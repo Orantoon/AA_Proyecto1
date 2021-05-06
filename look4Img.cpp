@@ -9,6 +9,9 @@
 using namespace cv;
 using namespace std;
 
+
+// Struct Creation ==========
+
 //Struct
 #define numCols 1920 // CHANGE IF RESIZE
 
@@ -38,7 +41,7 @@ struct Pixel {
 	}
 
 	void addNextPixel(Pixel* next) {
-		if (next!=nullptr)
+		if (next != nullptr)
 			nextPixel = next;
 	}
 
@@ -48,21 +51,21 @@ struct Pixel {
 
 		if (nextPixel != nullptr)
 			cout << "Next pixel -> " << nextPixel->absPos << endl << endl;
-		else 
+		else
 			cout << "/ / / Salto / / /" << endl << endl;
 	}
 };
 
 //at<Vec3b>(row,col)
 
-void MyLine(Mat img, Point start, Point end){
+void MyLine(Mat img, Point start, Point end) {
 	int thickness = 1;
 	int lineType = LINE_8;
 	line(img, start, end, Scalar(0, 0, 255), thickness, lineType);
 }
 
-void printVec(vector<Pixel *> v, int n) {
-	for (auto pix: v) {
+void printVec(vector<Pixel*> v, int n) {
+	for (auto pix : v) {
 		pix->print();
 
 		if ((n--) <= 1)
@@ -77,7 +80,7 @@ bool smallNum(Pixel* a, Pixel* b) {
 vector<Pixel*> v1, v2;
 
 void createStruct() {
-	cout << "Hi" << endl;
+	cout << "Begin" << endl;
 
 	//Images
 	Mat img1 = imread("Images/a.jpg"), re1;
@@ -112,7 +115,7 @@ void createStruct() {
 		v2.push_back(pix2);
 
 
-		if (v1.size() > 2) {
+		if (v1.size() >= 2) {
 			if (v1[j - 1]->row == pix1->row && v1[j - 1]->col + 1 == pix1->col)
 				v1[j - 1]->addNextPixel(pix1);
 			//else
@@ -120,10 +123,10 @@ void createStruct() {
 
 			if (v2[j - 1]->row == pix2->row && v2[j - 1]->col + 1 == pix2->col)
 				v2[j - 1]->addNextPixel(pix2);
-		} 
+		}
 
 		//ERROR, SI LA FILA ES IMPAR NO VA A AÑADIR LOS PUNTEROS QUE COINCIDEN DENTRO DE NEXT PIXEL
-		
+
 		//if (i != 0) { //add next pixel to each pixel
 			//v1[j - 1]->addNextPixel(pix1);
 			//v2[j - 1]->addNextPixel(pix2);
@@ -133,10 +136,10 @@ void createStruct() {
 		col = absPos % numCols;
 
 		if (row % 2 != 0) { // saltarme rows impares
-			i = -1; 
+			i = -1;
 			//jump = numCols;   //						(numCols[*5])
 			jump = 11;			//7	(740341)			//11 (686520) //
-			absPos += jump;  
+			absPos += jump;
 			it1 += jump; it2 += jump;
 		}
 		else {
@@ -149,7 +152,8 @@ void createStruct() {
 				it1++;
 				it2++;
 				absPos++;
-			} else {				//salto
+			}
+			else {				//salto
 				end.y = row;				// draw //
 				end.x = col;				// draw //
 				MyLine(re1, start, end);	// draw //
@@ -177,6 +181,43 @@ void createStruct() {
 	cout << "End!";
 };
 
+// Menu ==========
+void menu() {
+	int opcion;
+	bool salir = false;
+
+	while (!salir) {
+		cout << "=== Seleccione una opcion para recorrer la imagen. ===" << endl;
+		cout << "1. Divide y Venceras" << endl;
+		cout << "2. Backtracking" << endl;
+		cout << "3. Probabilista" << endl;
+		cout << "4. Salir" << endl;
+		cout << "Opcion: ";
+		cin >> opcion;
+		cout << endl;
+
+		switch (opcion) {
+		case 1:
+			//divideVenceras();
+			break;
+		case 2:
+			//backtracking();
+			break;
+		case 3:
+			//probabilista();
+			break;
+		case 4:
+			salir = true;
+		}
+	}
+}
+
+
+// Divide y Venceras ==========
+
+
+
+// Backtracking ==========
 void backtracking() {
 	//Sort both images so I can use the struct more efficiently (ALGORITHMS)
 	sort(v1.begin(), v1.end(), smallNum); sort(v2.begin(), v2.end(), smallNum);
@@ -186,11 +227,16 @@ void backtracking() {
 }
 
 
+// Probabilista ==========
 
 
+
+// Main ==========
 
 int main() {
+
 	createStruct();
-	backtracking();
+	menu();
+
 	return 0;
 }
